@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "debugpy",
+            "request": "launch",
+            "name": "Launch Flask Backend",
+            "program": "${workspaceFolder}/project/backend/app.py",
+            "env": {
+                "FLASK_ENV": "development"
+            },
+            "args": [],
+            "cwd": "${workspaceFolder}/project/backend"
+        }
+    ]
+}
