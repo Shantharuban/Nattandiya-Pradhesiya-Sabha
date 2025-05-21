@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Divisions & Committees - Local Council</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .content-section {
+            background: #fff;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .content-section h2 {
+            color: #0056b3;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+        .item-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: #f9f9f9;
+        }
+        .item-card h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #007bff;
+        }
+        .item-card p {
+            margin-bottom: 0;
+            font-size: 0.95em;
+            line-height: 1.6;
+        }
+        .page-intro {
+            text-align: center;
+            padding: 20px 0;
+        }
+         .empty-state {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Local Council Name</h1>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('frontend.homepage') }}">Home</a></li>
+                    <li><a href="{{ url_for('frontend.about_us_page') }}">About Us</a></li>
+                    <li><a href="{{ url_for('frontend.services_list_page') }}">Services</a></li>
+                    <li><a href="{{ url_for('frontend.divisions_committees_page') }}">Divisions & Committees</a></li>
+                    <li><a href="{{ url_for('frontend.homepage') }}#news">News</a></li>
+                    <li><a href="{{ url_for('auth.login') }}">Admin Login</a></li> 
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="page-intro">
+            <h2>Our Structure: Divisions & Committees</h2>
+            <p>Learn about the administrative divisions and committees that help our council function effectively and serve the community.</p>
+        </div>
+
+        <section id="administrative-divisions" class="content-section">
+            <h2>Administrative Divisions</h2>
+            {% if divisions and divisions|length > 0 %}
+                {% for division in divisions %}
+                    <div class="item-card">
+                        <h3>{{ division.name }}</h3>
+                        {% if division.description %}
+                            <p>{{ division.description | nl2br }}</p>
+                        {% else %}
+                            <p class="empty-state">No description available.</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="empty-state">Information about administrative divisions is not yet available.</p>
+            {% endif %}
+        </section>
+
+        <section id="committees" class="content-section">
+            <h2>Committees</h2>
+            {% if committees and committees|length > 0 %}
+                {% for committee in committees %}
+                    <div class="item-card">
+                        <h3>{{ committee.name }}</h3>
+                        {% if committee.description %}
+                            <p>{{ committee.description | nl2br }}</p>
+                        {% else %}
+                            <p class="empty-state">No description available.</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p class="empty-state">Information about committees is not yet available.</p>
+            {% endif %}
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; {{ now() | strftime('%Y') }} Local Council Name. All rights reserved.</p>
+            <p>Contact us: info@localcouncil.example.com</p>
+        </div>
+    </footer>
+</body>
+</html>

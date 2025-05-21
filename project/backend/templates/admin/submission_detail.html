@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Submission Details - ID: {{ submission.id }}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; background-color: #f4f4f4; color: #333; }
+        .navbar { background-color: #333; padding: 10px 20px; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .navbar a { color: white; text-decoration: none; padding: 8px 15px; }
+        .navbar a:hover { background-color: #555; border-radius: 3px; }
+        .container { padding: 20px; max-width: 800px; margin: auto; }
+        h1 { color: #0056b3; border-bottom: 2px solid #0056b3; padding-bottom: 10px; }
+        .back-link {
+            display: inline-block; margin-bottom: 20px; color: #007bff; text-decoration: none;
+        }
+        .back-link:hover { text-decoration: underline; }
+        .submission-card { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        .submission-card h2 { color: #333; margin-top: 0; }
+        .detail-item { margin-bottom: 15px; }
+        .detail-item strong { display: inline-block; width: 150px; color: #555; }
+        .detail-item span { color: #333; }
+        .submission-content {
+            background-color: #e9ecef; padding: 15px; border-radius: 4px; white-space: pre-wrap; /* Preserve formatting */
+            font-family: monospace;
+        }
+        .flash-messages { list-style: none; padding: 0; margin-bottom: 15px; }
+        .flash-messages li { padding: 10px; border-radius: 4px; margin-bottom: 10px; }
+        .flash-messages .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .flash-messages .danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status-update-form { margin-top: 20px; padding-top: 20px; border-top: 1px solid #ccc; }
+        .status-update-form label { font-weight: bold; }
+        .status-update-form select, .status-update-form textarea {
+             width: calc(100% - 22px); padding: 10px; margin-top: 5px; margin-bottom:10px; border:1px solid #ccc; border-radius:4px;
+        }
+        .status-update-form button { background-color: #007bff; color:white; padding:10px 15px; border:none; border-radius:4px; cursor:pointer; }
+        .status-update-form button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div>
+            <a href="{{ url_for('main.dashboard') }}">Dashboard</a>
+            <a href="{{ url_for('services.list_services') }}">Services</a>
+            <!-- Add other navigation links as needed -->
+        </div>
+        <div>
+            <span>Welcome, {{ current_user.username }}!</span>
+            <a href="{{ url_for('auth.logout') }}">Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Submission Details</h1>
+        <a href="{{ url_for('services.list_service_submissions', service_id=submission.service_id) }}" class="back-link">
+            &laquo; Back to Submissions for "{{ submission.service.name }}"
+        </a>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flash-messages">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        {% if submission %}
+            <div class="submission-card">
+                <h2>Submission ID: {{ submission.id }}</h2>
+                <div class="detail-item"><strong>Service:</strong> <span>{{ submission.service.name }}</span></div>
+                <div class="detail-item"><strong>Submitted By:</strong> <span>{{ submission.user_name }}</span></div>
+                <div class="detail-item"><strong>Contact:</strong> <span>{{ submission.user_contact }}</span></div>
+                <div class="detail-item"><strong>Status:</strong> <span>{{ submission.status.capitalize() }}</span></div>
+                <div class="detail-item"><strong>Submitted On:</strong> <span>{{ submission.submission_date.strftime('%Y-%m-%d %H:%M:%S') }}</span></div>
+                <div class="detail-item"><strong>Last Updated:</strong> <span>{{ submission.last_updated_at.strftime('%Y-%m-%d %H:%M:%S') }}</span></div>
+                {% if submission.last_updated_by_user %}
+                <div class="detail-item"><strong>Updated By:</strong> <span>{{ submission.last_updated_by_user.username }}</span></div>
+                {% endif %}
+                
+                <div class="detail-item">
+                    <strong>Submission Content:</strong>
+                    <pre class="submission-content">{{ submission.submission_content if submission.submission_content else 'N/A' }}</pre>
+                </div>
+                
+                {% if submission.remarks %}
+                <div class="detail-item">
+                    <strong>Admin Remarks:</strong>
+                    <pre class="submission-content" style="background-color: #fff3cd;">{{ submission.remarks }}</pre>
+                </div>
+                {% endif %}
+
+                {% if current_user.role == 'admin' %}
+                <div class="status-update-form">
+                    <h3>Update Submission Status & Remarks</h3>
+                    <form method="POST" action="{{ url_for('services.update_submission_status', submission_id=submission.id) }}">
+                        <div>
+                            <label for="status">New Status:</label>
+                            <select id="status" name="status">
+                                <option value="pending" {{ 'selected' if submission.status == 'pending' else '' }}>Pending</option>
+                                <option value="approved" {{ 'selected' if submission.status == 'approved' else '' }}>Approved</option>
+                                <option value="rejected" {{ 'selected' if submission.status == 'rejected' else '' }}>Rejected</option>
+                                <option value="in_progress" {{ 'selected' if submission.status == 'in_progress' else '' }}>In Progress</option>
+                                <option value="completed" {{ 'selected' if submission.status == 'completed' else '' }}>Completed</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="remarks">Admin Remarks:</label>
+                            <textarea id="remarks" name="remarks">{{ submission.remarks if submission.remarks else '' }}</textarea>
+                        </div>
+                        <button type="submit">Update Status</button>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+        {% else %}
+            <p>Submission not found.</p>
+        {% endif %}
+    </div>
+</body>
+</html>

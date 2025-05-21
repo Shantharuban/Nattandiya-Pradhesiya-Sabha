@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ 'Edit' if document else 'Upload' }} Document</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f4f4f4; color: #333; }
+        .container { background-color: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); max-width: 700px; margin: auto; }
+        h1 { color: #0056b3; text-align: center; }
+        form { display: flex; flex-direction: column; gap: 15px; }
+        label { font-weight: bold; margin-bottom: 5px; }
+        input[type="text"], input[type="date"], input[type="file"], textarea, select {
+            padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 1em; width: calc(100% - 22px);
+        }
+        textarea { resize: vertical; min-height: 80px; }
+        .form-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 15px; }
+        button[type="submit"] {
+            background-color: #28a745; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; font-size: 1em;
+        }
+        button[type="submit"]:hover { background-color: #218838; }
+        a.cancel-button {
+            background-color: #6c757d; color: white; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-size: 1em;
+        }
+        a.cancel-button:hover { background-color: #5a6268; }
+        .flash-messages { list-style: none; padding: 0; margin-bottom: 15px; }
+        .flash-messages li { padding: 10px; border-radius: 4px; margin-bottom: 10px; }
+        .flash-messages .success { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .flash-messages .danger { background-color: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .file-info { font-size: 0.9em; color: #555; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>{{ 'Edit' if document else 'Upload New' }} Document</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flash-messages">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="" enctype="multipart/form-data">
+            {{ form.hidden_tag() if form and form.hidden_tag }} <!-- For CSRF token if using Flask-WTF -->
+            
+            <div>
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" value="{{ document.title if document else '' }}" required>
+            </div>
+            
+            <div>
+                <label for="description">Description (Optional):</label>
+                <textarea id="description" name="description">{{ document.description if document else '' }}</textarea>
+            </div>
+            
+            <div>
+                <label for="category">Category (Optional):</label>
+                <input type="text" id="category" name="category" value="{{ document.category if document else '' }}">
+            </div>
+
+            <div>
+                <label for="publication_date">Publication Date (Optional):</label>
+                <input type="date" id="publication_date" name="publication_date" value="{{ document.publication_date.strftime('%Y-%m-%d') if document and document.publication_date else '' }}">
+            </div>
+            
+            {% if document and document.file_path_or_url %}
+            <div class="file-info">
+                <p>Current file: 
+                    <a href="{{ url_for('documents.download_document', doc_id=document.id) }}" target="_blank">
+                        {{ document.file_path_or_url.split('/')[-1] }}
+                    </a>
+                </p>
+                <p><small>To replace the file, choose a new file below. Otherwise, leave the file input empty.</small></p>
+            </div>
+            {% endif %}
+
+            <div>
+                <label for="file">Document File {{ '(Optional if editing and not replacing)' if document else '' }}:</label>
+                <input type="file" id="file" name="file" {{ 'required' if not document else '' }}>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit">{{ 'Update' if document else 'Upload' }} Document</button>
+                <a href="{{ url_for('documents.list_documents') }}" class="cancel-button">Cancel</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Our Council</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Local Council Name</h1>
+            <nav>
+                <ul>
+                    <li><a href="{{ url_for('frontend.homepage') }}">Home</a></li>
+                    <li><a href="{{ url_for('frontend.about_us_page') }}">About Us</a></li>
+                    <li><a href="{{ url_for('frontend.services_list_page') }}">Services</a></li>
+                    <li><a href="{{ url_for('frontend.divisions_committees_page') }}">Divisions & Committees</a></li>
+                    <li><a href="{{ url_for('frontend.homepage') }}#news">News</a></li> 
+                    <li><a href="{{ url_for('auth.login') }}">Admin Login</a></li> 
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section id="hero">
+            <div class="container">
+                <h2>Serving Our Community</h2>
+                <p>Your dedicated local council, working towards a brighter future for all residents.</p>
+            </div>
+        </section>
+
+        <section id="about">
+            <div class="container">
+                <h2>About Our Council</h2>
+                {% if council_info and council_info.introduction %}
+                    <article class="council-info-item">
+                        <h3>Introduction</h3>
+                        <p>{{ council_info.introduction | nl2br }}</p>
+                    </article>
+                {% endif %}
+                {% if council_info and council_info.mission %}
+                    <article class="council-info-item">
+                        <h3>Our Mission</h3>
+                        <p>{{ council_info.mission | nl2br }}</p>
+                    </article>
+                {% endif %}
+                {% if not council_info or (not council_info.introduction and not council_info.mission) %}
+                    <p>Council information is not yet available. Please check back soon.</p>
+                {% endif %}
+            </div>
+        </section>
+
+        <section id="news">
+            <div class="container">
+                <h2>Latest News</h2>
+                <div class="news-highlights">
+                    {% if recent_news and recent_news|length > 0 %}
+                        {% for item in recent_news %}
+                            <article class="news-item">
+                                <h3><a href="#">{{ item.title }}</a></h3> {# Placeholder link #}
+                                <p class="news-date">{{ item.date.strftime('%B %d, %Y') }}</p>
+                                <p>{{ (item.content[:150] + '...') if item.content|length > 150 else item.content | nl2br }}</p>
+                                {# <a href="#" class="read-more">Read More &raquo;</a> #}
+                            </article>
+                        {% endfor %}
+                    {% else %}
+                        <p>No recent news items to display.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <section id="services">
+            <div class="container">
+                <h2>Quick Links to Services</h2>
+                <ul class="quick-links">
+                    {% if quick_link_services and quick_link_services|length > 0 %}
+                        {% for service in quick_link_services %}
+                            <li><a href="{{ url_for('frontend.service_detail_page', service_id=service.id) }}">{{ service.name }}</a></li>
+                        {% endfor %}
+                         <li><a href="{{ url_for('frontend.services_list_page') }}">View All Services...</a></li>
+                    {% else %}
+                        <li>Service links are not yet available.</li>
+                    {% endif %}
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; {{ now() | strftime('%Y') }} Local Council Name. All rights reserved.</p>
+            <p>Contact us: info@localcouncil.example.com</p>
+        </div>
+    </footer>
+</body>
+</html>
